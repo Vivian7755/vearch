@@ -1,0 +1,26 @@
+include "status.fbs";
+
+namespace gamma_api;
+
+table Attribute  {
+  name:string;
+  value:[ubyte];
+}
+
+table ResultItem {
+  score:double;
+  attributes:[Attribute];
+}
+
+table SearchResult {
+  total:int;
+  result_code:vearch.status.Code;
+  msg:string;
+  result_items:[ResultItem];
+}
+
+table Response {
+  results:[SearchResult];
+}
+
+root_type Response;

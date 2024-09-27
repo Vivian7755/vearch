@@ -1,0 +1,37 @@
+name: CI Document Tasks
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+  
+jobs:
+  document-tasks:
+    strategy:
+      matrix:
+        # avoid pytest -k mix with IVFFLAT, so flat as BFFLAT
+        index-type: ["BFFLAT", "IVFFLAT", "IVFPQ", "HNSW"]
+        platform: [amd64, arm64]
+        include:
+          - platform: amd64
+            runs-on: ubuntu-latest
+            docker-arch: ""
+          - platform: arm64
+            runs-on: ubuntu-latest
+            docker-arch: "--platform linux/arm64"
+
+    runs-on: ${{ matrix.runs-on }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set cluster env
+      uses: ./.github/actions/set_cluster_env
+      with:
+        build-type: github
+
+    - name: Run test task for ${{ matrix.index-type }} with ${{ matrix.platform }}
+      run: |
+        cd test
+        pytest test_cluster_document.py -k "${{ matrix.index-type }} or test_vearch_index" -x --log-cli-level=INFO

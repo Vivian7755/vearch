@@ -1,0 +1,165 @@
+Spaces:
+  post:
+    summary: Create a new space
+    operationId: createSpace
+    tags:
+      - space
+    parameters:
+      - name: dbName
+        in: path
+        required: true
+        schema:
+          type: string
+        description: The name of the database where the space will be created.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              partition_num:
+                type: integer
+              replica_num:
+                type: integer
+              fields:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    type:
+                      type: string
+                    index:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          type: string
+                        params:
+                          type: object
+                          properties:
+                            metric_type:
+                              type: string
+                            nprobe:
+                              type: integer
+                            ncentroids:
+                              type: integer
+                            nsubvector:
+                              type: integer
+                            nlinks:
+                              type: integer
+                            efConstruction:
+                              type: integer
+                            efSearch:
+                              type: integer
+                            training_threshold:
+                              type: integer
+                    dimension:
+                      type: integer
+                    store_type:
+                      type: string
+                    format:
+                      type: string
+                    store_param:
+                      type: object
+                      properties:
+                        cache_size:
+                          type: integer
+    responses:
+      '200':
+        $ref: 'components/responses.yaml#/SuccessResponse'
+      '400':
+        description: Bad request
+      '401':
+        description: Authorization information is missing or invalid
+      '500':
+        description: Internal server error
+
+  get:
+    summary: List vearch space
+    parameters:
+        - in: query
+          name: dbName
+          required: true
+          schema:
+            type: string
+          example: ts_db
+    operationId: ListSpace
+    tags:
+      - space
+    responses:
+      '200':
+        $ref: 'components/responses.yaml#/SuccessResponse'
+      '400':
+        description: Invalid input or bad request
+      '401':
+        description: Authorization information is missing or invalid
+      '404':
+        description: Space not found
+      '500':
+        description: Internal server error
+
+Space:
+  get:
+    summary: Get a specific space
+    operationId: getSpace
+    tags:
+      - space
+    parameters:
+      - name: dbName
+        in: path
+        required: true
+        description: The name of the database
+        schema:
+          type: string
+      - name: spaceName
+        in: path
+        required: true
+        description: The name of the space to delete
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Space get successfully
+      '400':
+        description: Invalid input or bad request
+      '401':
+        description: Authorization information is missing or invalid
+      '404':
+        description: Space not found
+      '500':
+        description: Internal server error
+  delete:
+    summary: Delete a specific space
+    operationId: deleteSpace
+    tags:
+      - space
+    parameters:
+      - name: dbName
+        in: path
+        required: true
+        description: The name of the database
+        schema:
+          type: string
+      - name: spaceName
+        in: path
+        required: true
+        description: The name of the space to delete
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Space deleted successfully
+      '400':
+        description: Invalid input or bad request
+      '401':
+        description: Authorization information is missing or invalid
+      '404':
+        description: Space not found
+      '500':
+        description: Internal server error

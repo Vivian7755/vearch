@@ -1,0 +1,28 @@
+include "types.fbs";
+
+namespace gamma_api;
+
+table FieldInfo {
+  name:string;
+  data_type:DataType;
+  is_index:bool;
+}
+
+table VectorInfo {
+  name:string;
+  data_type:DataType;
+  is_index:bool;
+  dimension:int;
+  store_type:string;
+  store_param:string;
+}
+
+table Table {
+  name:string;
+  fields:[FieldInfo];
+  vectors_info:[VectorInfo];
+  index_type:string;     // IVFPQ, GPU, HNSW, BINARY
+  index_params:string;
+}
+
+root_type Table;

@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        include:
+          - platform: amd64
+            runs-on: ubuntu-latest
+            docker-arch: ""
+          - platform: arm64
+            runs-on: ubuntu-latest
+            docker-arch: "--platform linux/arm64"
+    runs-on: ${{ matrix.runs-on }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set standalone env
+      uses: ./.github/actions/set_standalone_env
+      with:
+        build-type: github
+
+    - name: Run Python tests
+      run: |
+        cd test
+        pytest test_vearch.py -x --log-cli-level=INFO
+        pytest test_document_* -k "not test_vearch_document_upsert_benchmark" -x --log-cli-level=INFO
+        pytest test_module_* -x --log-cli-level=INFO
+
+    - name: Test Go SDK
+      run: |
+        cd sdk/go/test
+        go test -v
+
+    - name: Build python sdk
+      run: |
+        cd sdk/python
+        python setup.py bdist_wheel
+        pip install dist/pyvearch*
+
+    - name: Test Python SDK
+      run: |
+        cd sdk/python/test
+        pytest -x --log-cli-level=INFO
+
+    - name: Test Benchmark Scripts
+      run: |
+        cd scripts/benchmarks
+        python restful.py
+        python pysdk.py

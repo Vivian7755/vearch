@@ -1,0 +1,200 @@
+Upsert:
+  post:
+    summary: Upsert document into database
+    operationId: upsert
+    tags:
+      - document
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              db_name:
+                type: string
+                default: "db"
+              space_name:
+                type: string
+              documents:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+            example:
+              db_name: "db"
+              space_name: "ts_space"
+              documents: [{"field_int": 1.2, "field_str": "test", "field_vec": [0.1, 0.2, 0.3]}]
+    responses:
+      '200':
+        $ref: 'components/responses.yaml#/SuccessResponse'
+      '401':
+        description: Authorization information is missing or invalid
+
+Delete:
+  post:
+    summary: Delete documents from a space
+    operationId: deleteDocuments
+    tags:
+      - document
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              db_name:
+                type: string
+                example: "ts_db"
+              space_name:
+                type: string
+                example: "ts_space"
+              query:
+                type: object
+                properties:
+                  document_ids:
+                    type: array
+                    items:
+                      type: string
+                    example: ["4501743250723073467", "616335952940335471", "-2422965400649882823"]
+    responses:
+      '200':
+        $ref: 'components/responses.yaml#/SuccessResponse'
+      '400':
+        description: Bad request
+      '401':
+        description: Authorization information is missing or invalid
+      '500':
+        description: Server error
+
+Search:
+  post:
+    summary: Search for documents using vector and filter parameters
+    operationId: searchDocuments
+    tags:
+      - document
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              db_name:
+                type: string
+              space_name:
+                type: string
+              vectors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    field:
+                      type: string
+                    feature:
+                      type: array
+                      items:
+                        type: number
+                        format: float
+              fields:
+                type: array
+                items:
+                  type: string
+              filters:
+                type: object
+                properties:
+                  operator:
+                    type: string
+                  conditions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        operator:
+                          type: string
+                        field:
+                          type: string
+                        value:
+                          oneOf:
+                            - type: string
+                            - type: number
+                            - type: array
+                              items:
+                                type: string
+              index_params:
+                type: object
+                properties:
+                  efSearch:
+                    type: integer
+                  metric_type:
+                    type: string
+              limit:
+                type: integer
+              vector_value:
+                type: boolean
+    responses:
+      '200':
+        $ref: 'components/responses.yaml#/SuccessResponse'
+      '400':
+        description: Bad request due to invalid syntax or parameters
+      '401':
+        description: Authorization information is missing or invalid
+      '500':
+        description: Internal server error
+
+Query:
+  post:
+    summary: Query for documents using doc ID and filter parameters
+    operationId: queryDocuments
+    tags:
+      - document
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              db_name:
+                type: string
+              space_name:
+                type: string
+              document_ids:
+                type: array
+                items:
+                  type: string
+              partition_id:
+                type: integer
+              filters:
+                type: object
+                properties:
+                  operator:
+                    type: string
+                  conditions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        operator:
+                          type: string
+                        field:
+                          type: string
+                        value:
+                          oneOf:
+                            - type: string
+                            - type: number
+                            - type: array
+                              items:
+                                type: string
+              vector_value:
+                type: boolean
+    responses:
+      '200':
+        $ref: 'components/responses.yaml#/SuccessResponse'
+      '400':
+        description: Bad request due to invalid syntax or parameters
+      '401':
+        description: Authorization information is missing or invalid
+      '500':
+        description: Internal server error

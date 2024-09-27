@@ -1,11 +1,14 @@
-FROM centos
+FROM quay.io/centos/centos:stream9-minimal
 
 ADD compile/bin /vearch/bin/
 ADD compile/lib /vearch/lib/
 
-ENV MASTER_NAME="___MASTER_NAME___"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/vearch/lib/"
+COPY start.sh /vearch/start.sh
+COPY restart.sh /vearch/restart.sh
 
-RUN yum install -y libgomp blas-devel lapack-devel
+RUN chmod +x /vearch/start.sh && chmod +x /vearch/restart.sh
 
-ENTRYPOINT ["/vearch/bin/vearch","-conf" ,"/vearch/config.toml","-master","$MASTER_NAME"]
+RUN microdnf install -y dnf
+RUN dnf --enablerepo=crb install -y libgomp lapack libzstd openblas-devel tbb cronie procps
+
+ENTRYPOINT ["/vearch/start.sh"]

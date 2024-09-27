@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+import "errors.proto";
+import "data_model.proto";
+import "router_grpc.proto";
+
+option go_package = "./vearchpb";
+option optimize_for = SPEED;
+package vearchpb;
+
+enum OpType {
+  CREATE = 0;
+  DELETE = 1;
+  BULK = 2;
+  GET = 3;
+  SEARCH = 4;
+}
+//*********************** Partition *********************** //
+
+message PartitionData {
+  OpType type = 1;
+  uint32 partitionID = 2;
+  string messageID = 3;
+  repeated Item items = 4;
+  SearchRequest search_request = 5;
+  SearchResponse search_response = 6;
+  bytes data = 7;
+  Error err = 8;
+  DelByQueryeResponse del_by_query_response = 9;
+  IndexRequest index_request = 10;
+  IndexResponse index_response = 11;
+  QueryRequest query_request = 12;
+}
+
+//*********************** Raft *********************** //
+message UpdateSpace {
+  bytes Space = 1;
+  uint64 version = 2;
+}
+
+message DocCmd {
+  OpType type = 1;
+  int64 version = 3;
+  uint32 slot = 5;
+  bytes doc = 7;
+  repeated bytes docs = 8;
+}
+
+enum CmdType {
+  WRITE = 0;
+  UPDATESPACE = 1;
+  FLUSH = 2;
+  SEARCHDEL = 3;
+}
+
+message RaftCommand {
+  CmdType type = 1;
+  DocCmd write_command = 2;
+  UpdateSpace update_space = 3;
+}
+
+message SnapData {
+  bytes key = 1;
+  bytes value = 2;
+}
